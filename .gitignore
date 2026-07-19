@@ -1,0 +1,19 @@
+# Virtual environment
+mamba_env/
+
+# Model checkpoints (large binary files - not suited for git)
+*.pt
+
+# Logs
+log_*.txt
+nohup.out
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# HuggingFace datasets cache
+.cache/
