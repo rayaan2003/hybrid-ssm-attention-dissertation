@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 
 from data import get_dataloaders
-from model_transformer import TransformerLM
+from model_transformer_v2 import ModernTransformerLM
 from model_mamba import MambaLM
 
 
@@ -57,11 +57,11 @@ def extract_activations(model: nn.Module, x: torch.Tensor, is_transformer: bool)
     with torch.no_grad():
         if is_transformer:
             B, T = x.shape
-            positions = torch.arange(T, device=x.device).unsqueeze(0)
-            h = model.token_emb(x) + model.pos_emb(positions)
+            cos, sin = model._get_rope(T, x.device)
+            h = model.drop(model.token_emb(x))
             for block in model.blocks:
-                h = block(h)
-            h = model.ln_f(h)
+                h = block(h, cos, sin)
+            h = model.norm_f(h)
         else:
             h = model.token_emb(x)
             for block in model.blocks:
@@ -73,10 +73,10 @@ def extract_activations(model: nn.Module, x: torch.Tensor, is_transformer: bool)
 
 
 def load_transformer(checkpoint_path: str, device: str):
-    ckpt = torch.load(checkpoint_path, map_location=device)
-    model = TransformerLM(
+    ckpt = torch.load(checkpoint_path, map_location=device, weights_only=False)
+    model = ModernTransformerLM(
         vocab_size=ckpt["vocab_size"], d_model=256, n_layers=4,
-        n_heads=4, d_ff=1024, max_seq_len=1024,
+        n_heads=4, d_ff=683, max_seq_len=1024,
     )
     model.load_state_dict(ckpt["state_dict"])
     return model.to(device).eval()

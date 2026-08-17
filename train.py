@@ -20,6 +20,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from data import get_dataloaders
 from model_transformer import TransformerLM, count_parameters as count_t
+from model_transformer_v2 import ModernTransformerLM, count_parameters as count_t2
 from model_mamba import MambaLM, count_parameters as count_m
 
 
@@ -30,6 +31,13 @@ def build_model(model_name: str, vocab_size: int, device: str):
             n_heads=4, d_ff=1024, max_seq_len=1024,
         )
         print(f"Transformer parameter count: {count_t(model):,}")
+    elif model_name == "transformer_v2":
+        model = ModernTransformerLM(
+            vocab_size=vocab_size, d_model=256, n_layers=4,
+            n_heads=4, d_ff=683, max_seq_len=1024,
+        )
+        print(f"Modern Transformer (RoPE+RMSNorm+SwiGLU) parameter count: "
+              f"{count_t2(model):,}")
     elif model_name == "mamba":
         # n_layers=8 matches the Transformer's 16.29M params to within 0.51%
         # (found via matching_config.py).
@@ -108,7 +116,7 @@ def train(model_name: str, epochs: int, batch_size: int, seq_len: int,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", choices=["transformer", "mamba"], required=True)
+    parser.add_argument("--model", choices=["transformer", "transformer_v2", "mamba"], required=True)
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--seq_len", type=int, default=512)

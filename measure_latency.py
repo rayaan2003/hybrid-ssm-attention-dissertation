@@ -17,6 +17,7 @@ import time
 import torch
 
 from model_transformer import TransformerLM
+from model_transformer_v2 import ModernTransformerLM
 from model_mamba import MambaLM
 
 
@@ -28,6 +29,11 @@ def load_model(model_name: str, checkpoint_path: str, device: str):
         model = TransformerLM(
             vocab_size=vocab_size, d_model=256, n_layers=4,
             n_heads=4, d_ff=1024, max_seq_len=1024,
+        )
+    elif model_name == "transformer_v2":
+        model = ModernTransformerLM(
+            vocab_size=vocab_size, d_model=256, n_layers=4,
+            n_heads=4, d_ff=683, max_seq_len=1024,
         )
     elif model_name == "mamba":
         model = MambaLM(
@@ -70,7 +76,7 @@ def measure_latency(model, seq_len: int = 512, batch_size: int = 1,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", type=str, required=True)
-    parser.add_argument("--model", choices=["transformer", "mamba"], required=True)
+    parser.add_argument("--model", choices=["transformer", "transformer_v2", "mamba"], required=True)
     parser.add_argument("--seq_len", type=int, default=512)
     parser.add_argument("--device", type=str, default="cuda")
     args = parser.parse_args()
