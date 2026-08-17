@@ -194,10 +194,3 @@ representations across held-out validation batches.
 - If you hit CUDA out-of-memory errors, reduce `--batch_size` or
   `--seq_len` first.
 
-## Citation
-
-If referencing this work, please cite the accompanying dissertation:
-
-> Sheikh, R. (2026) *Architectural Mixing Strategies for Hybrid
-> SSM-Attention Networks: A Systematic Study of Efficiency and
-> Generalisation.* MSc Dissertation, Queen Mary University of London.
